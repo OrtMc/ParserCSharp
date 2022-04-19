@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using System.Configuration;
 using System.Data;
@@ -34,7 +32,9 @@ namespace Parser
 
                     foreach(Offer key in result.Keys)
                     {
+                        // создание записи для оффера
                         await AddOfferAsync("offer_id", key.Id, con);
+                        // заполнение полей оффера
                         await AddOfferAsync("type", key.Type, con, key.Id);
                         await AddOfferAsync("bid", key.Bid, con, key.Id);
                         await AddOfferAsync("cbid", key.Cbid, con, key.Id);
@@ -42,6 +42,7 @@ namespace Parser
 
                         foreach (KeyValuePair<string, object> val in result[key])
                         {
+                            // попытка получения нормальной кодировки строк
                             byte[] utfBytes = utf8.GetBytes(val.Value.ToString());
                             byte[] pureBytes = Encoding.Convert(utf8, pure, utfBytes);
                             string value = pure.GetString(pureBytes);
@@ -123,6 +124,7 @@ namespace Parser
         }
 
         // добавление оффера в базу данных
+        // после первого вызова для каждого оффера дополняет поля оффера
         private static async Task AddOfferAsync(string field, object value, SqlConnection con, int id = 0)
         {
             string sqlExpression = "INSERT INTO Offers ("+field+") VALUES ('"+value+"')";
